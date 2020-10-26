@@ -49,5 +49,13 @@ enroll:
 
 # 效果
 ## 登录
-
+![img](images\Snipaste_2020-10-26_13-34-25.png)
 ## 导入（测试文件在excel文件夹下）
+## 表格信息
+![img](images\Snipaste_2020-10-26_13-38-37.png)
+## 统计信息
+![img](images\Snipaste_2020-10-26_13-39-28.png)
+## 生源地分布
+![img](images\Snipaste_2020-10-26_13-40-11.png)
+## 导出结果
+![img](images\Snipaste_2020-10-26_13-41-04.png)
