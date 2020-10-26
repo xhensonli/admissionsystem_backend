@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.enroll.mapper.StatusMapper">
+
+    <!--void addLog(String content, int status);-->
+    <insert id="addLog">
+        INSERT INTO t_log
+        (log_content, status)
+        VALUES
+        (#{content}, #{status})
+    </insert>
+
+    <select id="getStatus" resultType="integer">
+        SELECT status
+        FROM t_log
+        ORDER BY log_time DESC
+        LIMIT 1
+    </select>
+
+    <!--List<Map<String, Object>> getLogList();-->
+    <select id="getLogList" resultType="log">
+        SELECT log_content, DATE_FORMAT(log_time,'%Y-%m-%d %H:%i:%s') AS log_time
+        FROM t_log
+        ORDER BY log_time
+    </select>
+</mapper>

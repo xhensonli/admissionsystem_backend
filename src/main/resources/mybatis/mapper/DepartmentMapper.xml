@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.enroll.mapper.DepartmentMapper">
+
+
+    <!--void InsertDepartment(Department department);-->
+    <insert id="insertDepartment" keyProperty="departmentId" useGeneratedKeys="true">
+        INSERT INTO t_department
+        (department_name)
+        VALUES
+        (#{departmentName})
+    </insert>
+
+    <!--List<Department> getDepartments();-->
+    <select id="getDepartments" resultType="department">
+        SELECT department_id, department_name
+        FROM t_department
+    </select>
+
+</mapper>

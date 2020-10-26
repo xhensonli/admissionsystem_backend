@@ -1,0 +1,326 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.enroll.mapper.StudentMapper">
+
+    <sql id="studentResultModel">
+        SELECT t1.candidate, t1.student_id, t1.student_name, t1.total_grade, t1.`rank`, t1.province, t1.city, t2.major_name, t3.department_name, t1.accepted_type
+        FROM t_student t1, t_major t2, t_department t3
+        WHERE t1.accepted_major_id = t2.major_id
+        AND t2.department_id = t3.department_id
+        AND accepted_type BETWEEN 1 AND 7
+    </sql>
+
+    <!--<resultMap id="resultWithStudent" type="result">-->
+        <!--<result column="top_rank" property="topRank" jdbcType="INTEGER"></result>-->
+        <!--<result column="bottom_rank" property="bottomRank" jdbcType="INTEGER"></result>-->
+        <!--<result column="max_grade" property="maxGrade" jdbcType="INTEGER"></result>-->
+        <!--<result column="min_grade" property="minGrade" jdbcType="INTEGER"></result>-->
+        <!--<result column="average_grade" property="averageGrade" jdbcType="INTEGER"></result>-->
+        <!--<association property="students" select=""-->
+    <!--</resultMap>-->
+    <resultMap id="resultList" type="hashmap">
+        <result property="groupName" column="group_name" jdbcType="VARCHAR"/>
+        <result property="topRank" column="top_rank" jdbcType="INTEGER"/>
+        <result property="bottomRank" column="bottom_rank" jdbcType="INTEGER"/>
+        <result property="maxGrade" column="max_grade" jdbcType="INTEGER"/>
+        <result property="minGrade" column="min_grade" jdbcType="INTEGER"/>
+        <result property="averageGrade" column="average_grade" jdbcType="INTEGER"/>
+    </resultMap>
+
+    <!--<resultMap id="geoDistributeMap" type="hashmap">-->
+        <!--<result column="city" property="city" />-->
+        <!--<result column="count" property="count"/>-->
+    <!--</resultMap>-->
+
+    <!--<resultMap id="gradeDistributeMap" type="hashmap">-->
+        <!---->
+    <!--</resultMap>-->
+
+    <!--void insertStudent(@Param("studentList") List<ExcelStudent> students);-->
+    <insert id="insertStudent" useGeneratedKeys="true" keyProperty="studentId">
+        INSERT INTO t_student
+        (candidate, student_name, total_grade, will1, will2, will3, will4, will5, will6, adjust, `rank`, province, city, subject_type, accepted_type)
+        VALUES
+        <foreach collection="studentList" item="student" separator=",">
+            (#{student.candidate}, #{student.studentName}, #{student.totalGrade}, #{student.will1}, #{student.will2}, #{student.will3},
+             #{student.will4}, #{student.will5}, #{student.will6},
+             #{student.adjust}, #{student.rank}, #{student.province}, #{student.city}, #{student.subjectType}, '-2')
+        </foreach>
+    </insert>
+
+    <!--List<ExcelStudent> getStudentRaw();-->
+    <select id="getStudentRaw" resultType="org.enroll.excel.pojo.ExcelStudent">
+        SELECT *
+        FROM t_student
+    </select>
+
+    <!--List<ExcelStudent> getAdjustStudentRaw();-->
+    <select id="getAdjustStudentRaw" resultType="org.enroll.excel.pojo.ExcelStudent">
+        SELECT candidate, student_id, student_name, total_grade, will1, will2, will3, will4, will5, will6, adjust, `rank`, province, city, subject_type
+        FROM t_student
+        WHERE accepted_type = 0
+    </select>
+
+    <!--List<ExcelStudent> getExitStudentRaw();-->
+    <select id="getExitStudentRaw" resultType="org.enroll.excel.pojo.ExcelStudent">
+        SELECT candidate, student_id, student_name, total_grade, will1, will2, will3, will4, will5, will6, adjust, `rank`, province, city, subject_type
+        FROM t_student
+        WHERE accepted_type = -1
+    </select>
+
+    <select id="getStudentRawForEnroll" resultType="org.enroll.excel.pojo.ExcelStudent">
+        SELECT *
+        FROM t_student
+        ORDER BY `rank`
+        LIMIT #{start}, #{size}
+    </select>
+
+    <select id="getStudentRawForAdjust" resultType="org.enroll.excel.pojo.ExcelStudent">
+        SELECT *
+        FROM t_student
+        WHERE adjust = 1
+        AND accepted_type = 0
+        ORDER BY `rank`
+        LIMIT #{start}, #{size}
+    </select>
+
+
+    <update id="updateAccepted" >
+        <foreach collection="students" separator=";" item="student">
+            UPDATE t_student
+            SET accepted_major_id = #{student.acceptedMajorId}, accepted_type = #{student.acceptedType}
+            WHERE student_id = #{student.studentId}
+        </foreach>
+    </update>
+
+    <update id="updateAccepted2">
+        UPDATE t_student
+        <trim prefix="set" suffixOverrides=",">
+            <trim prefix="accepted_major_id = case" suffix="end,">
+                <foreach collection="students" item="item" index="index">
+                    WHEN student_id = #{item.studentId} THEN #{item.acceptedMajorId}
+                </foreach>
+            </trim>
+            <trim prefix="accepted_type = case" suffix="end,">
+                <foreach collection="students" item="item" index="index">
+                    WHEN student_id = #{item.studentId} THEN #{item.acceptedType}
+                </foreach>
+            </trim>
+        </trim>
+        WHERE student_id IN
+        <foreach collection="students" index="index" item="item" separator="," open="(" close=")">
+            #{item.studentId}
+        </foreach>
+    </update>
+
+    <update id="updateSingleAccepted">
+        UPDATE t_student
+            SET accepted_major_id = #{acceptedMajorId}, accepted_type = #{acceptedType}
+            WHERE student_id = #{studentId}
+    </update>
+
+    <!--void updateAdjust(@Param("students") List<ExcelStudent> students);-->
+    <update id="updateAdjust" >
+        <foreach collection="students" item="student" separator=";">
+            UPDATE t_student
+            SET accepted_major_id = #{student.acceptedMajorId}, accepted_type = #{student.acceptedType}
+            WHERE student_id = #{student.studentId}
+        </foreach>
+    </update>
+
+    <!--List<StudentResult> getStudent(@Param("desc") boolean desc, @Param("option") QueryResultOption option);-->
+    <select id="getStudent" resultType="studentResult">
+       <include refid="studentResultModel"></include>
+        <if test="option.rank != null">
+            AND `rank` &lt;= #{option.rank}
+        </if>
+        <if test="option.majorId != null">
+            AND t2.major_id = #{option.majorId}
+        </if>
+        <if test="option.majorId == null and option.departmentId != null">
+            AND t3.department_id = #{option.departmentId}
+        </if>
+
+       ORDER BY `rank` <if test="desc == true">DESC</if>
+    </select>
+
+    <select id="getStudentForExport" resultType="studentResult">
+        <include refid="studentResultModel"></include>
+        ORDER BY `rank`
+        LIMIT #{start},#{size}
+    </select>
+
+    <select id="getStudentBeforeRank" resultType="studentResult">
+        <include refid="studentResultModel"/>
+        AND `rank` &lt;= #{rank}
+        ORDER BY `rank`
+    </select>
+
+    <!--List<StudentResult> getStudentByDepartment(@Param("depId") int departmentId, @Param("desc") boolean desc);-->
+    <select id="getStudentByDepartment" resultType="studentResult">
+        <include refid="studentResultModel"></include>
+        AND t3.department_id = #{depId}
+        ORDER BY `rank` <if test="desc == true">DESC</if>
+    </select>
+
+    <!--List<StudentResult> getStudentByMajor(@Param("majorId") String majorId, @Param("desc") boolean desc);-->
+    <select id="getStudentByMajor" resultType="studentResult">
+        <include refid="studentResultModel"></include>
+        AND t2.major_id = #{majorId}
+        ORDER BY `rank` <if test="desc == true">DESC</if>
+    </select>
+
+
+    <select id="searchStudent" resultType="studentResult">
+        <include refid="studentResultModel"></include>
+        AND t1.student_name like "%"#{keyword}"%"
+    </select>
+
+    <select id="searchStudentByCandidate" resultType="studentResult">
+        <include refid="studentResultModel"></include>
+        AND t1.candidate = #{candidate}
+    </select>
+
+
+
+    <!--StatisticsResult getResultByDepartment(@Param("depId") int departmentId);-->
+    <!--<select id="getResultByDepartment" resultType="statisticsResult">-->
+        <!--SELECT MIN(rank) as top_rank, MAX(rank) as bottom_rank,-->
+         <!--MAX(total_grade) as max_grade, MIN(total_grade) as min_grade, AVG(total_grade) as average_grade-->
+        <!--FROM t_student-->
+        <!--WHERE NOT accepted_type = -1-->
+        <!--AND accepted_major_id in-->
+        <!--(-->
+          <!--SELECT DISTINCT major_id-->
+          <!--FROM t_major-->
+          <!--WHERE department_id = #{depId}-->
+        <!--)-->
+    <!--</select>-->
+
+    <!--StatisticsResult getResultByMajor(@Param("majorId") String majorId);-->
+    <!--<select id="getResultByMajor"  resultType="statisticsResult">-->
+        <!--SELECT MIN(rank) as top_rank, MAX(rank) as bottom_rank,-->
+         <!--MAX(total_grade) as max_grade, MIN(total_grade) as min_grade, AVG(total_grade) as average_grade-->
+        <!--FROM t_student-->
+        <!--WHERE NOT accepted_type = -1-->
+        <!--AND accepted_major_id = #{majorId}-->
+    <!--</select>-->
+
+    <!--StatisticsResult getResult();-->
+    <select id="getStatisticsResult" resultType="statisticsResult">
+        SELECT MIN(`rank`) as top_rank, MAX(`rank`) as bottom_rank,
+         MAX(total_grade) as max_grade, MIN(total_grade) as min_grade, AVG(total_grade) as average_grade
+        FROM t_student
+        WHERE accepted_type BETWEEN 1 AND 7
+    </select>
+
+    <!--  List<StatisticsResult>  getResultInDepartment();-->
+    <select id="getStatisticsResultInDepartment" resultType="statisticsResult">
+        SELECT t3.department_name as group_name, MIN(`rank`) as top_rank, MAX(`rank`) as bottom_rank,
+         MAX(total_grade) as max_grade, MIN(total_grade) as min_grade, AVG(total_grade) as average_grade
+         FROM t_student t1 RIGHT JOIN t_major t2
+         ON t1.accepted_major_id = t2.major_id
+		 INNER JOIN t_department t3
+         ON t2.department_id = t3.department_id
+         GROUP BY t3.department_id
+         ORDER BY bottom_rank
+    </select>
+
+    <!--  List<StatisticsResult>  getResultInMajor();-->
+    <select id="getStatisticsResultInMajor" resultType="statisticsResult">
+        SELECT t2.major_name as group_name, MIN(`rank`) as top_rank, MAX(`rank`) as bottom_rank,
+         MAX(total_grade) as max_grade, MIN(total_grade) as min_grade, AVG(total_grade) as average_grade
+         FROM t_student t1 RIGHT JOIN t_major t2
+         ON t1.accepted_major_id = t2.major_id
+         GROUP BY t2.major_id
+         ORDER BY bottom_rank
+    </select>
+
+    <!--List<Map<String, Integer>> getDistribute();-->
+    <select id="getDistribute" resultType="hashmap">
+        SELECT province, COUNT(1) as count
+        FROM t_student
+        WHERE accepted_type BETWEEN 1 AND 7
+        GROUP BY province
+    </select>
+
+    <!--List<Map<String, Integer>> getDistributeInProvince(@Param("province") String province);-->
+    <select id="getDistributeInProvince" resultType="hashmap">
+        SELECT city, COUNT(1) as count
+        FROM t_student
+        WHERE province = #{province}
+        AND accepted_type BETWEEN 1 AND 7
+        GROUP BY city
+    </select>
+
+    <!--Map<String, Integer> getGradeDistribute();-->
+    <select id="getGradeDistribute" resultType="hashmap">
+        SELECT ELT(INTERVAL(total_grade,0,510,520,530,540,550,560,570,580),
+        "0-510","510-520","520-530","530-540","540-550","550-560","560-570","570-580","580+") as region ,count(1) as count
+        FROM t_student
+        WHERE accepted_type BETWEEN 1 AND 7
+        GROUP BY region
+    </select>
+
+    <!--Map<String, Integer> getGradeDistributeByDepartment(@Param("departmentId") int departmentId);-->
+    <select id="getGradeDistributeByDepartment" resultType="hashmap">
+        SELECT ELT(INTERVAL(total_grade,0,510,520,530,540,550,560,570,580),
+        "0-510","510-520","520-530","530-540","540-550","550-560","560-570","570-580","580+") as region ,count(1) as count
+        FROM t_student
+        WHERE accepted_major_id IN
+        (
+          SELECT DISTINCT major_id
+          FROM t_major
+          WHERE department_id = #{departmentId}
+        )
+        GROUP BY region
+    </select>
+
+    <!--Map<String, Integer> getGradeDistributeByMajor(@Param("majorId") String majorId);-->
+    <select id="getGradeDistributeByMajor" resultType="hashmap">
+        SELECT ELT(INTERVAL(total_grade,0,510,520,530,540,550,560,570,580),
+        "0-510","510-520","520-530","530-540","540-550","550-560","560-570","570-580","580+") as region ,count(1) as count
+        FROM t_student
+        WHERE accepted_major_id = #{majorId}
+        GROUP BY region
+    </select>
+
+    <!--List<Map<String, Integer>> getCountDistributeInDepartment();-->
+    <select id="getCountDistributeInDepartment"  resultType="hashmap">
+        SELECT t3.department_name, COUNT(1) as count
+        FROM t_student t1, t_major t2, t_department t3
+        WHERE t1.accepted_major_id = t2.major_id
+        AND t2.department_id = t3.department_id
+        GROUP BY t3.department_name
+    </select>
+
+    <!--List<Map<String, Integer>> getCountDistributeInMajor();-->
+    <select id="getCountDistributeInMajor" resultType="hashmap">
+        SELECT t2.major_name, COUNT(1) as count
+        FROM t_student t1, t_major t2
+        WHERE t1.accepted_major_id = t2.major_id
+        GROUP BY t2.major_name
+    </select>
+
+    <!--List<Map<String, Integer>> getCountDistributeInMajorByDepartment(@Param("departmentId") int departmentId);-->
+    <select id="getCountDistributeInMajorByDepartment" resultType="hashmap">
+        SELECT t2.major_name, COUNT(1) as count
+        FROM t_student t1, t_major t2
+        WHERE t1.accepted_major_id = t2.major_id
+        AND t2.department_id = #{departmentId}
+        GROUP BY t2.major_name
+    </select>
+
+    <update id="resetStudent">
+        UPDATE t_student
+        SET accepted_major_id = NULL, accepted_type = -2
+    </update>
+
+    <!--void resetTable();-->
+    <delete id="resetTable">
+        DELETE
+        FROM t_student
+    </delete>
+
+
+</mapper>

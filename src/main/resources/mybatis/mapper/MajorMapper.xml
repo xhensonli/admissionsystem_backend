@@ -1,0 +1,78 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+<mapper namespace="org.enroll.mapper.MajorMapper">
+
+    <!--void insertMajor( @Param("majorList") List<ExcelMajor> list);-->
+    <insert id="insertMajor">
+        INSERT INTO t_major
+        (major_id, major_code, department_id, major_name, comment, period, plan_student_count)
+        VALUES
+        <foreach collection="majorList" index="ind" item="major" separator=",">
+            (#{major.majorId}, #{major.majorCode}, #{major.departmentId}, #{major.majorName}, #{major.comment}, #{major.period}, #{major.planStudentCount})
+        </foreach>
+    </insert>
+    
+    <select id="getMajorPlan" resultType="org.enroll.excel.pojo.ExcelMajor">
+        SELECT t1.major_id, t1.major_code, t1.major_name, t2.department_id, t2.department_name, t1.comment, t1.period, t1.plan_student_count, t1.realistic_student_count
+        FROM t_major t1, t_department t2
+        WHERE t1.department_id = t2.department_id
+    </select>
+
+    <select id="getMajorPlanForEnroll" resultType="org.enroll.excel.pojo.ExcelMajor">
+        SELECT major_id, plan_student_count
+        FROM t_major
+    </select>
+
+    <!--List<ExcelMajor> getMajorPlanForAdjust();-->
+    <select id="getMajorPlanForAdjust" resultType="org.enroll.excel.pojo.ExcelMajor">
+        SELECT t1.major_id, t1.plan_student_count, t1.realistic_student_count, MAX(t2.rank) as bottom_rank
+        FROM t_major t1, t_student t2
+        WHERE t1.major_id = t2.accepted_major_id
+        AND plan_student_count > realistic_student_count
+        GROUP BY t1.major_id
+        ORDER BY bottom_rank
+    </select>
+
+    <!--void updateStudentCount(@Param("majors") List<ExcelMajor> majors);-->
+    <update id="updateStudentCount">
+        <foreach collection="majors" item="major" separator=";">
+            UPDATE t_major
+            SET realistic_student_count = #{major.realisticStudentCount}
+            WHERE major_id = #{major.majorId}
+        </foreach>
+    </update>
+
+
+
+    <!--void updatePlanStudentCount(@Param("majorId") String majorId, @Param("count") int count);-->
+    <update id="updatePlanStudentCount">
+        UPDATE t_major
+        SET plan_student_count = #{count}
+        WHERE major_id = ${majorId}
+    </update>
+
+    <update id="resetMajor">
+        UPDATE t_major
+        SET realistic_student_count = 0
+    </update>
+
+    <!--void resetTable();-->
+    <delete id="resetTable">
+        DELETE
+        FROM t_major
+    </delete>
+
+
+    <select id="getMajors" resultType="major">
+        SELECT DISTINCT major_id, major_name
+        FROM t_major
+    </select>
+
+
+    <select id="getMajorsByDepartment" resultType="major">
+        SELECT DISTINCT major_id, major_name
+        FROM t_major
+        WHERE department_id = #{departmentId}
+    </select>
+
+</mapper>
