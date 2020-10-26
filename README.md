@@ -12,6 +12,9 @@
 * vue2.0
 * vue-cli3
 
+# 前端仓库
+https://github.com/Baibair/admissionsystem_frontend
+
 # 下载项目
 * 找一个文件夹，打开cmd，在这个文件夹下运行
 ```bash
