@@ -1,5 +1,6 @@
 # admissionsystem_backend
 平行志愿录取系统（后端代码，广东工业大学数据库大作业）
+基于java、spring、MySQL数据库、vue.js的课程设计
 
 # 开发环境
 * JDK8
