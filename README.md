@@ -8,9 +8,9 @@
 * JDK8
 * MySQL5.7
 * springboot2.3
-* maven3.6.3
-* vue2.0
-* vue-cli3
+* maven3.6.3（需要安装，否则没有依赖）
+* vue2.0（前端开发环境，并不必需）
+* vue-cli3（前端开发环境，并不必需）
 
 # 前端仓库
 https://github.com/Baibair/admissionsystem_frontend
