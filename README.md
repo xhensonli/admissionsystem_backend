@@ -56,7 +56,7 @@ enroll:
 # 效果
 ## 登录
 ![img](https://github.com/Baibair/admissionsystem_backend/blob/master/images/Snipaste_2020-10-26_13-34-25.png)
-## 导入（测试文件在excel文件夹下）
+## 导入（测试文件在excel文件夹下，数据为随机模拟）
 ## 表格信息
 ![img](https://github.com/Baibair/admissionsystem_backend/blob/master/images/Snipaste_2020-10-26_13-38-37.png)
 ## 统计信息
