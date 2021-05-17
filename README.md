@@ -4,6 +4,10 @@
 平行志愿录取系统（后端代码，广东工业大学数据库大作业）
 基于java、spring、MySQL数据库、vue.js的课程设计
 
+# 更新
+* 2020-1-13 
+  删除了几个状态，重写首页UI，新增导出退档队列，新增启动自动建表
+
 # 开发环境
 * JDK8
 * MySQL5.7
@@ -56,7 +60,7 @@ enroll:
 # 效果
 ## 登录
 ![img](https://github.com/Baibair/admissionsystem_backend/blob/master/images/Snipaste_2020-10-26_13-34-25.png)
-## 导入（测试文件在excel文件夹下）
+## 导入（测试文件在excel文件夹下，数据为随机模拟）
 ## 表格信息
 ![img](https://github.com/Baibair/admissionsystem_backend/blob/master/images/Snipaste_2020-10-26_13-38-37.png)
 ## 统计信息
