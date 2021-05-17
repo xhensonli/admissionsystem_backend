@@ -3,6 +3,7 @@ package org.enroll.service.impl;
 import com.alibaba.excel.EasyExcel;
 import com.github.pagehelper.PageHelper;
 import com.github.pagehelper.PageInfo;
+import lombok.extern.slf4j.Slf4j;
 import org.enroll.excel.pojo.ExcelMajor;
 import org.enroll.excel.pojo.ExcelStudent;
 import org.enroll.mapper.MajorMapper;
@@ -25,6 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @Service
+@Slf4j
 @Transactional(isolation = Isolation.DEFAULT, propagation = Propagation.REQUIRED)
 public class StudentServiceImpl implements IStudentService {
 
@@ -47,6 +49,7 @@ public class StudentServiceImpl implements IStudentService {
     @Override
     public PageInfo getAdjustStudentRaw(int currentPage){
         PageHelper.startPage(currentPage, 50);
+        log.info("准备开始获取");
         return new PageInfo<>(studentMapper.getAdjustStudentRaw());
     }
 
@@ -59,7 +62,7 @@ public class StudentServiceImpl implements IStudentService {
     @Override
     public void doEnroll() {
         Integer status = statusMapper.getStatus();
-        if (status == null || status != EnrollStatus.FILE_READY.ordinal() && status != EnrollStatus.READY.ordinal()){
+        if (status == null || status != EnrollStatus.FILE_READY.ordinal()){
             throw new RuntimeException("这个状态不能录取");
         }
         List<ExcelMajor> majors = majorMapper.getMajorPlanForEnroll();
@@ -103,11 +106,9 @@ public class StudentServiceImpl implements IStudentService {
             current = current + size;
         }
         majorMapper.updateStudentCount(majors);
-        if (status == EnrollStatus.FILE_READY.ordinal()){
-            statusMapper.addLog("预录取完成", EnrollStatus.PRE_ENROLL.ordinal());
-        } else {
-            statusMapper.addLog("录取完成", EnrollStatus.ENROLLED.ordinal());
-        }
+
+        statusMapper.addLog("录取完成", EnrollStatus.ENROLLED.ordinal());
+
     }
 
     private boolean doEnroll(ExcelMajor major){
@@ -129,7 +130,7 @@ public class StudentServiceImpl implements IStudentService {
     @Override
     public void doAdjust(){
         Integer status = statusMapper.getStatus();
-        if (status == null || status != EnrollStatus.PRE_ENROLL.ordinal() && status != EnrollStatus.ENROLLED.ordinal()){
+        if (status == null || status != EnrollStatus.ENROLLED.ordinal()){
             throw new RuntimeException("这个状态不能调剂");
         }
         List<ExcelMajor> majors = majorMapper.getMajorPlanForAdjust();
@@ -159,11 +160,9 @@ public class StudentServiceImpl implements IStudentService {
             //不能改变start
         }
         majorMapper.updateStudentCount(majors);
-        if (status == EnrollStatus.PRE_ENROLL.ordinal()){
-            statusMapper.addLog("预调剂完成", EnrollStatus.PRE_ADJUST.ordinal());
-        } else {
-            statusMapper.addLog("调剂完成", EnrollStatus.ADJUSTED.ordinal());
-        }
+
+        statusMapper.addLog("调剂完成", EnrollStatus.ADJUSTED.ordinal());
+
     }
 
 
@@ -216,68 +215,71 @@ public class StudentServiceImpl implements IStudentService {
 
     @Override
     public List<StatisticsResult> getStatisticsResultInMajor() {
-        return studentMapper.getStatisticsResultInMajor();
+        List<StatisticsResult> result = studentMapper.getStatisticsResultInMajor();
+        return result;
     }
 
     @Override
-    public List<Map<String, Integer>> getDistribute() {
+    public List<Map<String, Object>> getDistribute() {
         return studentMapper.getDistribute();
     }
 
     @Override
-    public List<Map<String, Integer>> getDistributeInProvince(String province) {
+    public List<Map<String, Object>> getDistributeInProvince(String province) {
         return studentMapper.getDistributeInProvince(province);
     }
 
     @Override
-    public List<Map<String, Integer>> getGradeDistribute() {
+    public List<Map<String, Object>> getGradeDistribute() {
         return studentMapper.getGradeDistribute();
     }
 
     @Override
-    public List<Map<String, Integer>> getGradeDistributeByDepartment(int departmentId) {
+    public List<Map<String, Object>> getGradeDistributeByDepartment(int departmentId) {
         return studentMapper.getGradeDistributeByDepartment(departmentId);
     }
 
     @Override
-    public List<Map<String, Integer>> getGradeDistributeByMajor(String majorId) {
+    public List<Map<String, Object>> getGradeDistributeByMajor(String majorId) {
         return studentMapper.getGradeDistributeByMajor(majorId);
     }
 
     @Override
-    public List<Map<String, Integer>> getCountDistributeInDepartment() {
+    public List<Map<String, Object>> getCountDistributeInDepartment() {
         return studentMapper.getCountDistributeInDepartment();
     }
 
     @Override
-    public List<Map<String, Integer>> getCountDistributeInMajor() {
+    public List<Map<String, Object>> getCountDistributeInMajor() {
         return studentMapper.getCountDistributeInMajor();
     }
 
     @Override
-    public List<Map<String, Integer>> getCountDistributeInMajorByDepartment(int departmentId) {
+    public List<Map<String, Object>> getCountDistributeInMajorByDepartment(int departmentId) {
         return studentMapper.getCountDistributeInMajorByDepartment(departmentId);
     }
 
     @Override
+    @Deprecated
     public void reset(){
-        Integer status = statusMapper.getStatus();
-        if (status == null || status != EnrollStatus.PRE_ENROLL.ordinal() && status != EnrollStatus.PRE_ADJUST.ordinal()){
-            throw new RuntimeException("这个状态不能重置");
-        }
-        majorMapper.resetMajor();
-        studentMapper.resetStudent();
-        statusMapper.addLog("重置成功", EnrollStatus.FILE_READY.ordinal());
+//        Integer status = statusMapper.getStatus();
+//        if (status == null || status != EnrollStatus.PRE_ENROLL.ordinal() && status != EnrollStatus.PRE_ADJUST.ordinal()){
+//            throw new RuntimeException("这个状态不能重置");
+//        }
+//        majorMapper.resetMajor();
+//        studentMapper.resetStudent();
+//        statusMapper.addLog("重置成功", EnrollStatus.FILE_READY.ordinal());
     }
 
     @Override
+    @Deprecated
     public void formallyReady(){
-        Integer status = statusMapper.getStatus();
-        if (status == null || status != EnrollStatus.PRE_ADJUST.ordinal()){
-            throw new RuntimeException("这个状态不能准备录取");
-        }
-        majorMapper.resetMajor();
-        studentMapper.resetStudent();
-        statusMapper.addLog("准备录取", EnrollStatus.READY.ordinal());
+//        Integer status = statusMapper.getStatus();
+//        if (status == null || status != EnrollStatus.PRE_ADJUST.ordinal()){
+//            throw new RuntimeException("这个状态不能准备录取");
+//        }
+//        majorMapper.resetMajor();
+//        studentMapper.resetStudent();
+//        statusMapper.addLog("准备录取", EnrollStatus.READY.ordinal());
     }
 }

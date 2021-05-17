@@ -20,6 +20,7 @@ public class MajorController {
 
     @RequestMapping("/updateMajorPlan")
     public JsonResponse updateMajorPlan(String majorId, int count){
+        if (count < 0) return new JsonResponse(JsonResponse.INVALID_REQUEST, null, "输入数字不正确");
         majorService.updateMajorPlan(majorId, count );
         return new JsonResponse(JsonResponse.OK, null, null);
     }

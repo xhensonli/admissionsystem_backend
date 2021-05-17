@@ -14,4 +14,5 @@ public interface IExcelService {
 
     void doExport(OutputStream os);
 
+    void exportExitStudent(OutputStream os);
 }

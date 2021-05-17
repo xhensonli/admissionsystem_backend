@@ -30,7 +30,6 @@ public class FileController {
         return new JsonResponse(JsonResponse.OK,null,null);
     }
 
-    @CrossOrigin(origins = "http://localhost:8000")
     @ResponseBody
     @RequestMapping("/uploadStudent")
     public JsonResponse uploadStudentExcel(MultipartFile file) throws IOException {
@@ -38,7 +37,6 @@ public class FileController {
         return new JsonResponse(JsonResponse.OK,null,null);
     }
 
-    @CrossOrigin(origins = "http://localhost:8000")
     @RequestMapping("/exportResult")
     public void export(HttpServletResponse response) throws IOException {
         response.setContentType("application/vnd.ms-excel");
@@ -46,5 +44,14 @@ public class FileController {
         String fileName = URLEncoder.encode("录取结果", "UTF-8").replaceAll("\\+", "%20");
         response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
         excelService.doExport(response.getOutputStream());
+    }
+
+    @RequestMapping("/exportExit")
+    public void exportExit(HttpServletResponse response) throws IOException {
+        response.setContentType("application/vnd.ms-excel");
+        response.setCharacterEncoding("utf-8");
+        String fileName = URLEncoder.encode("退档结果", "UTF-8").replaceAll("\\+", "%20");
+        response.setHeader("Content-disposition", "attachment;filename*=utf-8''" + fileName + ".xlsx");
+        excelService.exportExitStudent(response.getOutputStream());
     }
 }

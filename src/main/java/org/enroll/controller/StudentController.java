@@ -56,17 +56,28 @@ public class StudentController {
         return new JsonResponse(JsonResponse.OK, studentService.getResult(currentPage, desc, option), null);
     }
 //    StatisticsResult getResultByDepartment( int departmentId, int currentPage, boolean desc);
+    /**
+     * @description t通过学院、专业、排名查询已弃用，请使用上面的getResult
+     * @author 李宏鑫
+     * @param null
+     * @return
+     * @updateTime 2021/1/7 20:53
+     * @throws
+     */
     @RequestMapping("/getResultByDepartment")
+    @Deprecated
     public JsonResponse getResultByDepartment(int departmentId, @RequestParam(required = false, defaultValue = "1") int currentPage, @RequestParam(required = false, defaultValue = "false") boolean desc){
         return new JsonResponse(JsonResponse.OK, studentService.getResultByDepartment(departmentId, currentPage, desc), null);
     }
 //    StatisticsResult getResultByMajor( String majorId, int currentPage, boolean desc);
     @RequestMapping("/getResultByMajor")
+    @Deprecated
     public JsonResponse getResultByMajor(String majorId, @RequestParam(required = false, defaultValue = "1") int currentPage, @RequestParam(required = false, defaultValue = "false") boolean desc){
         return new JsonResponse(JsonResponse.OK, studentService.getResultByMajor(majorId, currentPage, desc), null);
     }
 
     @RequestMapping("/searchStudent")
+    @Deprecated
     public JsonResponse searchStudent(@RequestParam(required = false, defaultValue = "1") int currentPage,String keyword){
         return new JsonResponse(JsonResponse.OK, studentService.searchStudent(currentPage,keyword), null);
     }
@@ -139,12 +150,14 @@ public class StudentController {
     }
 
     @RequestMapping("/reset")
+    @Deprecated
     public JsonResponse reset(){
         studentService.reset();
         return new JsonResponse(JsonResponse.OK, null, null);
     }
 
     @RequestMapping("/formalReady")
+    @Deprecated
     public JsonResponse formalReady(){
         studentService.formallyReady();
         return new JsonResponse(JsonResponse.OK, null, null);

@@ -12,4 +12,6 @@ public interface DepartmentMapper {
     void insertDepartment(Department department);
 
     List<Department> getDepartments();
+
+    void resetTable();
 }

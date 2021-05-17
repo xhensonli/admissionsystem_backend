@@ -24,4 +24,10 @@ public class StatusController {
     public JsonResponse getLogList(){
         return new JsonResponse(JsonResponse.OK, statusService.getLogList(), null);
     }
+
+    @RequestMapping("/reset")
+    public JsonResponse reset() {
+        statusService.reset();
+        return new JsonResponse(JsonResponse.OK, null, null);
+    }
 }

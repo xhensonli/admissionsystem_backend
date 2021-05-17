@@ -2,17 +2,22 @@ package org.enroll.excel.listener;
 
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
+import com.alibaba.excel.exception.ExcelDataConvertException;
 import lombok.NoArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.enroll.excel.pojo.ExcelMajor;
+import org.enroll.exception.ReadExcelException;
 import org.enroll.mapper.DepartmentMapper;
 import org.enroll.mapper.MajorMapper;
 import org.enroll.pojo.Department;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
+@Slf4j
 @NoArgsConstructor
 public class ReadMajorListener extends AnalysisEventListener<ExcelMajor> {
 
@@ -43,15 +48,26 @@ public class ReadMajorListener extends AnalysisEventListener<ExcelMajor> {
             list.clear();
         }
     }
+//
+    @Override
+    public void onException(Exception exception, AnalysisContext context) {
+        throw new ReadExcelException("导入Excel失败，请检查文件格式");
+    }
 
     @Override
     public void doAfterAllAnalysed(AnalysisContext analysisContext) {
+        System.out.println("finish");
         this.save();
         list.clear();
     }
 
     private void save(){
         for (ExcelMajor excelMajor : list) {
+            if (StringUtils.isEmpty(excelMajor.getDepartmentName())) {
+                list.clear();
+                throw new ReadExcelException("导入Excel失败，请检查文件格式");
+            }
+
             Integer id = departmentIds.get(excelMajor.getDepartmentName());
             if(id == null){
                 Department newDept = new Department();
@@ -62,6 +78,7 @@ public class ReadMajorListener extends AnalysisEventListener<ExcelMajor> {
             }
             excelMajor.setDepartmentId(id);
         }
-        majorMapper.insertMajor(list);
+        if (list.size() > 0)
+            majorMapper.insertMajor(list);
     }
 }

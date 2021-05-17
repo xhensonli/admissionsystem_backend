@@ -150,6 +150,13 @@
         LIMIT #{start},#{size}
     </select>
 
+    <select id="getExitStudentForExport" resultType="org.enroll.excel.pojo.ExcelStudent">
+        SELECT *
+        FROM t_student
+        WHERE accepted_type = -1
+        LIMIT #{start},#{size}
+    </select>
+
     <select id="getStudentBeforeRank" resultType="studentResult">
         <include refid="studentResultModel"/>
         AND `rank` &lt;= #{rank}
@@ -232,8 +239,15 @@
          MAX(total_grade) as max_grade, MIN(total_grade) as min_grade, AVG(total_grade) as average_grade
          FROM t_student t1 RIGHT JOIN t_major t2
          ON t1.accepted_major_id = t2.major_id
+				 WHERE realistic_student_count > 0
          GROUP BY t2.major_id
-         ORDER BY bottom_rank
+         -- ORDER BY bottom_rank
+        UNION ALL
+        SELECT t2.major_name as group_name, NULL as top_rank, NULL as bottom_rank,
+         NULL as max_grade, NULL min_grade, NULL as average_grade
+         FROM t_major t2
+				 WHERE realistic_student_count = 0
+         GROUP BY t2.major_id
     </select>
 
     <!--List<Map<String, Integer>> getDistribute();-->

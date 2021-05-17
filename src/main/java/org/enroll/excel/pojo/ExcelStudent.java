@@ -1,13 +1,20 @@
 package org.enroll.excel.pojo;
 
+import com.alibaba.excel.annotation.ExcelIgnoreUnannotated;
 import com.alibaba.excel.annotation.ExcelProperty;
+import com.alibaba.excel.annotation.write.style.HeadFontStyle;
+import com.alibaba.excel.annotation.write.style.HeadStyle;
 import lombok.*;
+import org.apache.poi.ss.usermodel.FillPatternType;
 
 @Data
 @NoArgsConstructor
 @Setter
 @Getter
 @ToString
+@HeadStyle(fillPatternType = FillPatternType.SOLID_FOREGROUND, fillForegroundColor = 9)
+@HeadFontStyle(fontHeightInPoints = 10)
+@ExcelIgnoreUnannotated
 public class ExcelStudent {
 
 

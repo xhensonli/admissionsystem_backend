@@ -40,21 +40,21 @@ public interface IStudentService {
 
     List<StatisticsResult> getStatisticsResultInMajor();
 
-    List<Map<String, Integer>> getDistribute();
+    List<Map<String, Object>> getDistribute();
 
-    List<Map<String, Integer>> getDistributeInProvince(String province);
+    List<Map<String, Object>> getDistributeInProvince(String province);
 
-    List<Map<String, Integer>> getGradeDistribute();
+    List<Map<String, Object>> getGradeDistribute();
 
-    List<Map<String, Integer>> getGradeDistributeByDepartment( int departmentId);
+    List<Map<String, Object>> getGradeDistributeByDepartment( int departmentId);
 
-    List<Map<String, Integer>> getGradeDistributeByMajor(String majorId);
+    List<Map<String, Object>> getGradeDistributeByMajor(String majorId);
 
-    List<Map<String, Integer>> getCountDistributeInDepartment();
+    List<Map<String, Object>> getCountDistributeInDepartment();
 
-    List<Map<String, Integer>> getCountDistributeInMajor();
+    List<Map<String, Object>> getCountDistributeInMajor();
 
-    List<Map<String, Integer>> getCountDistributeInMajorByDepartment(int departmentId);
+    List<Map<String, Object>> getCountDistributeInMajorByDepartment(int departmentId);
 
     void reset();
 

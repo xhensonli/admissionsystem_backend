@@ -3,7 +3,9 @@ package org.enroll.excel.listener;
 import com.alibaba.excel.context.AnalysisContext;
 import com.alibaba.excel.event.AnalysisEventListener;
 import org.enroll.excel.pojo.ExcelStudent;
+import org.enroll.exception.ReadExcelException;
 import org.enroll.mapper.StudentMapper;
+import org.springframework.util.StringUtils;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,7 +37,19 @@ public class ReadStudentListener extends AnalysisEventListener<ExcelStudent> {
     }
 
     private void save(){
-       this.studentMapper.insertStudent(list);
+        if (list.size() > 0) {
+            if (StringUtils.isEmpty(list.get(0).getStudentName())) {
+                list.clear();
+                throw new ReadExcelException("导入Excel失败，请检查文件格式");
+            }
+            this.studentMapper.insertStudent(list);
+        }
+
+    }
+
+    @Override
+    public void onException(Exception exception, AnalysisContext context){
+        throw new ReadExcelException("导入Excel失败，请检查文件格式");
     }
 
 

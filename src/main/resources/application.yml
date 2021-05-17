@@ -48,7 +48,11 @@ spring:
         wall:
           config:
             multi-statement-allow: true
+    initialization-mode: ALWAYS
+    schema:
+      - classpath:sql/schema.sql
 
+    initialize: true
   devtools:
     restart:
       enabled: true
@@ -67,5 +71,5 @@ enroll:
   login:
     adminName: admin
     adminPass: 123456
-  database: DATABASE_NAME
-  dbpass: MYSQL_PASSWORD
+  database: db_enroll
+  dbpass: 15975867048

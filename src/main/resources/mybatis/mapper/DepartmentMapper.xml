@@ -17,4 +17,9 @@
         FROM t_department
     </select>
 
+    <delete id="resetTable">
+        DELETE
+        FROM t_department
+    </delete>
+
 </mapper>

@@ -9,4 +9,6 @@ public interface IStatusService {
     Integer getStatus();
 
     List<Log> getLogList();
+
+    void reset();
 }

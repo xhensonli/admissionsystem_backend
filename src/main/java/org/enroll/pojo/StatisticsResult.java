@@ -1,6 +1,7 @@
 package org.enroll.pojo;
 
 import com.github.pagehelper.PageInfo;
+import lombok.Data;
 import lombok.Getter;
 import lombok.Setter;
 import org.apache.ibatis.type.Alias;
@@ -9,17 +10,18 @@ import org.apache.ibatis.type.Alias;
 @Setter
 @Getter
 @Alias("statisticsResult")
+@Data
 public class StatisticsResult {
 
-    private int topRank;
+    private Integer topRank;
 
-    private int bottomRank;
+    private Integer bottomRank;
 
-    private int maxGrade;
+    private Integer maxGrade;
 
-    private int minGrade;
+    private Integer minGrade;
 
-    private int averageGrade;
+    private Integer averageGrade;
 
     private String groupName;
 }

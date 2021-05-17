@@ -41,6 +41,8 @@ public interface StudentMapper {
 
     List<StudentResult> getStudentForExport(@Param("start") int start, @Param("size") int size);
 
+    List<ExcelStudent> getExitStudentForExport(@Param("start") int start, @Param("size") int size);
+
     List<StudentResult> getStudentByDepartment(@Param("depId") int departmentId, @Param("desc") boolean desc);
 
     List<StudentResult> getStudentByMajor(@Param("majorId") String majorId, @Param("desc") boolean desc);
@@ -61,21 +63,21 @@ public interface StudentMapper {
 
     List<StatisticsResult> getStatisticsResultInMajor();
 
-    List<Map<String, Integer>> getDistribute();
+    List<Map<String, Object>> getDistribute();
 
-    List<Map<String, Integer>> getDistributeInProvince(@Param("province") String province);
+    List<Map<String, Object>> getDistributeInProvince(@Param("province") String province);
 
-    List<Map<String, Integer>> getGradeDistribute();
+    List<Map<String, Object>> getGradeDistribute();
 
-    List<Map<String, Integer>> getGradeDistributeByDepartment(@Param("departmentId") int departmentId);
+    List<Map<String, Object>> getGradeDistributeByDepartment(@Param("departmentId") int departmentId);
 
-    List<Map<String, Integer>> getGradeDistributeByMajor(@Param("majorId") String majorId);
+    List<Map<String, Object>> getGradeDistributeByMajor(@Param("majorId") String majorId);
 
-    List<Map<String, Integer>> getCountDistributeInDepartment();
+    List<Map<String, Object>> getCountDistributeInDepartment();
 
-    List<Map<String, Integer>> getCountDistributeInMajor();
+    List<Map<String, Object>> getCountDistributeInMajor();
 
-    List<Map<String, Integer>> getCountDistributeInMajorByDepartment(@Param("departmentId") int departmentId);
+    List<Map<String, Object>> getCountDistributeInMajorByDepartment(@Param("departmentId") int departmentId);
 
     void resetStudent();
 

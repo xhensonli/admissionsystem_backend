@@ -45,38 +45,22 @@ public class ExcelServiceImpl implements IExcelService {
         Integer status = statusMapper.getStatus();
         majorMapper.resetTable();
         studentMapper.resetStudent();
-        if (status != null && (status == EnrollStatus.PRE_ENROLL.ordinal() || status >= EnrollStatus.READY.ordinal())){
-            throw new RuntimeException("现在不能导入文件");
+        if (status != null && status != EnrollStatus.START.ordinal()){
+            throw new RuntimeException("现在不能导入招生计划文件");
         }
         EasyExcel.read(file.getInputStream(), ExcelMajor.class, new ReadMajorListener(majorMapper, departmentMapper)).sheet().doRead();
-        if (status == null){
-            statusMapper.addLog("导入专业招生计划文件", EnrollStatus.WITHOUT_STUDENT.ordinal());
-        } else if (status == EnrollStatus.WITHOUT_MAJOR.ordinal()){
-            statusMapper.addLog("导入专业招生计划文件", EnrollStatus.FILE_READY.ordinal());
-        } else if (status == EnrollStatus.WITHOUT_STUDENT.ordinal()){
-            statusMapper.addLog("重新导入专业招生计划文件", EnrollStatus.WITHOUT_STUDENT.ordinal());
-        } else {
-            statusMapper.addLog("重新导入专业招生计划文件", EnrollStatus.FILE_READY.ordinal());
-        }
+        statusMapper.addLog("导入专业招生计划文件", EnrollStatus.WITHOUT_STUDENT.ordinal());
     }
 
     public void ReadStudentExcel(MultipartFile file) throws IOException {
         Integer status = statusMapper.getStatus();
-        if (status != null && (status == EnrollStatus.PRE_ENROLL.ordinal() || status >= EnrollStatus.READY.ordinal())){
-            throw new RuntimeException("现在不能导入文件");
+        if (status != EnrollStatus.WITHOUT_STUDENT.ordinal()){
+            throw new RuntimeException("现在不能导入考生志愿文件");
         }
         studentMapper.resetTable();
         majorMapper.resetMajor();
         EasyExcel.read(file.getInputStream(), ExcelStudent.class,new ReadStudentListener(studentMapper)).sheet().doRead();
-        if (status == null){
-            statusMapper.addLog("导入考生志愿文件", EnrollStatus.WITHOUT_MAJOR.ordinal());
-        } else if (status == EnrollStatus.WITHOUT_STUDENT.ordinal()){
-            statusMapper.addLog("导入考生志愿文件", EnrollStatus.FILE_READY.ordinal());
-        } else if (status == EnrollStatus.WITHOUT_MAJOR.ordinal()){
-            statusMapper.addLog("重新导入考生志愿文件", EnrollStatus.WITHOUT_MAJOR.ordinal());
-        } else {
-            statusMapper.addLog("重新导入考生志愿文件", EnrollStatus.FILE_READY.ordinal());
-        }
+        statusMapper.addLog("导入考生志愿文件", EnrollStatus.FILE_READY.ordinal());
     }
 
     @Override
@@ -92,6 +76,31 @@ public class ExcelServiceImpl implements IExcelService {
             WriteSheet writeSheet = EasyExcel.writerSheet("录取结果").build();
             while(true) {
                 List<StudentResult> results = studentMapper.getStudentForExport(start,size);
+                if(results.size() == 0)
+                    break;
+                excelWriter.write(results, writeSheet);
+                start += size;
+            }
+        } finally {
+            if (excelWriter != null) {
+                excelWriter.finish();
+            }
+        }
+    }
+
+    @Override
+    public void exportExitStudent(OutputStream os) {
+        int start = 0, size = 200;
+        ExcelWriter excelWriter = null;
+        Integer status = statusMapper.getStatus();
+        if (status != EnrollStatus.ADJUSTED.ordinal()){
+            throw new RuntimeException("未结束流程不能导出结果");
+        }
+        try {
+            excelWriter = EasyExcel.write(os, ExcelStudent.class).build();
+            WriteSheet writeSheet = EasyExcel.writerSheet("退档结果").build();
+            while(true) {
+                List<ExcelStudent> results = studentMapper.getExitStudentForExport(start,size);
                 if(results.size() == 0)
                     break;
                 excelWriter.write(results, writeSheet);
